@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using CASU.Data; // Namespace chứa AppDbContext của bạn
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Đăng ký AppDbContext sử dụng SQL Server với ConnectionString tên là "Default"
+// Đăng ký AppDbContext sử dụng PostgreSQL với ConnectionString tên là "Default"
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
