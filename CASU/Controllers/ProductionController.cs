@@ -129,87 +129,61 @@ namespace CASU.Controllers
             return View(model);
         }
 
-        // 2. Quản lý dây chuyền và máy (Machines)
-        public IActionResult Machines()
+        // 2. Quản lý dây chuyền và máy (Machines)
+        public IActionResult Machines()
         {
             var list = new List<MachineStatusViewModel>();
             var filePath = Path.Combine(_dataFolderPath, "SL_Theo_May__updated.csv");
 
-            if (!System.IO.File.Exists(filePath))
+            if (System.IO.File.Exists(filePath))
             {
-                System.Console.WriteLine("--> CẢNH BÁO: Không tìm thấy file CSV tại: " + filePath);
-                return View(list); // Trả về danh sách rỗng để không bị crash trang web
-            }
-
-            try
-            {
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-                var lines = System.IO.File.ReadAllLines(filePath, Encoding.UTF8);
-
-                for (int i = 1; i < lines.Length; i++)
+                try
                 {
-                    var line = lines[i];
-                    if (string.IsNullOrWhiteSpace(line)) continue;
+                    Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                    var lines = System.IO.File.ReadAllLines(filePath, Encoding.UTF8);
 
-                    var cols = ParseCsvLine(line);
-                    if (cols.Count >= 7)
+                    for (int i = 1; i < lines.Length; i++)
                     {
-                        try
+                        var line = lines[i];
+                        if (string.IsNullOrWhiteSpace(line)) continue;
+
+                        var cols = ParseCsvLine(line);
+
+                        if (cols.Count >= 2)
                         {
-                            string rawCol0 = cols[0].Trim().Trim('"');
-                            string machineCode = rawCol0;
-                            var parts = rawCol0.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                            if (parts.Length >= 2)
+                            string machineCode = cols[0].Trim().Trim('"').Replace("\ufeff", "");
+                            if (machineCode.Equals("MÃ MÁY", StringComparison.OrdinalIgnoreCase) ||
+                                machineCode.Equals("MachineCode", StringComparison.OrdinalIgnoreCase))
                             {
-                                machineCode = parts[1];
+                                continue;
                             }
-
-                            string productCategory = cols[1].Trim().Trim('"');
-
-                            int act = 0;
-                            int.TryParse(cols[2].Trim().Replace("\"", "").Replace(",", ""), out act);
-
-                            int tgt = 0;
-                            int.TryParse(cols[3].Trim().Replace("\"", "").Replace(",", ""), out tgt);
-
-                            string performance = tgt > 0 ? $"{Math.Round((double)act / tgt * 100, 2)}%" : "0%";
-
-                            int ini = 0;
-                            int.TryParse(cols[4].Trim().Replace("\"", "").Replace(",", ""), out ini);
-
-                            int def = 0;
-                            int.TryParse(cols[5].Trim().Replace("\"", "").Replace(",", ""), out def);
-
-                            double rate = 0;
-                            double.TryParse(cols[6].Trim().Replace("%", "").Replace("\"", "").Replace(",", "."), CultureInfo.InvariantCulture, out rate);
 
                             list.Add(new MachineStatusViewModel
                             {
                                 MachineCode = machineCode,
-                                ProductCategory = productCategory,
-                                ActualQty = act,
-                                TargetQty = tgt,
-                                Performance = performance,
-                                InitialQty = ini,
-                                DefectQty = def,
-                                DefectRate = rate
+                                ProductCategory = cols.Count > 1 ? cols[1].Trim().Trim('"') : "",
+                                ActualQty = cols.Count > 2 && int.TryParse(cols[2].Trim().Replace("\"", "").Replace(",", ""), out var act) ? act : 0,
+                                TargetQty = cols.Count > 3 && int.TryParse(cols[3].Trim().Replace("\"", "").Replace(",", ""), out var tgt) ? tgt : 0,
+                                Performance = cols.Count > 4 ? cols[4].Trim().Replace("\"", "") : "0%",
+                                InitialQty = cols.Count > 5 && int.TryParse(cols[5].Trim().Replace("\"", "").Replace(",", ""), out var ini) ? ini : 0,
+                                DefectQty = cols.Count > 6 && int.TryParse(cols[6].Trim().Replace("\"", "").Replace(",", ""), out var def) ? def : 0,
+                                DefectRate = cols.Count > 7 && double.TryParse(cols[7].Trim().Replace("%", "").Replace("\"", "").Replace(",", "."), CultureInfo.InvariantCulture, out var rate) ? rate : 0
                             });
-                        }
-                        catch
-                        {
-                            continue;
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine("--> LỖI KHI ĐỌC FILE MACHINES: " + ex.Message);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                System.Console.WriteLine("--> LỖI KHI ĐỌC FILE MACHINES: " + ex.Message);
+                System.Console.WriteLine("--> CẢNH BÁO: Không tìm thấy file CSV tại: " + filePath);
             }
 
             return View(list);
         }
-
         // 3. Quản lý sản phẩm/Item
         public IActionResult Item()
         {
