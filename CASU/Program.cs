@@ -1,12 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using CASU.Data; // Namespace chứa AppDbContext của bạn
-using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Đăng ký AppDbContext sử dụng PostgreSQL với ConnectionString tên là "Default"
+// Đăng ký AppDbContext sử dụng SQL Server với ConnectionString tên là "Default"
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -14,12 +13,7 @@ builder.Services.AddControllersWithViews();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    // Bật trang hiển thị lỗi chi tiết (Developer Exception Page) khi chạy ở môi trường Development
-    app.UseDeveloperExceptionPage();
-}
-else
+if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
