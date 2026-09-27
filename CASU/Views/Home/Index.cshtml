@@ -1,0 +1,28 @@
+﻿@{
+    ViewData["Title"] = "Trang Chủ";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="p-5 mb-4 bg-white rounded-4 shadow-sm border text-center">
+            <!-- LOGO HIỂN THỊ Ở GIỮA TRANG CHỦ -->
+            <div class="mb-4">
+                <img src="~/images/casumina-logo.jpg" alt="CASUMINA Logo" style="max-height: 120px; width: auto; object-fit: contain;" />
+            </div>
+
+            <h1 class="display-5 fw-bold text-dark">Hệ Thống Quản Lý Sản Xuất CAOSUMINA</h1>
+            <p class="fs-4 text-muted mt-3 px-md-5">
+                Nền tảng số hóa theo dõi sản lượng thời gian thực, quản lý dây chuyền, máy móc, nhân sự và kiểm soát lỗi toàn diện nhà máy cao su.
+            </p>
+            <hr class="my-4 w-50 mx-auto">
+            <div class="d-flex justify-content-center gap-3 flex-wrap mt-4">
+                <a class="btn btn-primary btn-lg px-4 shadow-sm" asp-controller="Production" asp-action="TotalProduction" role="button">
+                    📊 Mở Dashboard Tổng Quan
+                </a>
+                <a class="btn btn-outline-secondary btn-lg px-4 shadow-sm" asp-controller="Production" asp-action="Machines" role="button">
+                    ⚙️ Quản Lý Máy Móc
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

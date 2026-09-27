@@ -1,0 +1,95 @@
+﻿@model IEnumerable<CASU.Models.EmployeeStatusViewModel>
+
+@{
+    ViewData["Title"] = "Quản lý Theo Nhân Viên";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Quản lý Sản Lượng Theo Nhân Viên</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="TotalProduction">Dashboard</a></li>
+        <li class="breadcrumb-item active">Theo Nhân Viên</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-users me-1"></i>
+                Danh sách hiệu suất làm việc của nhân viên
+            </div>
+            <div>
+                <a asp-action="Employees" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-sync-alt"></i> Làm mới
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Ô tìm kiếm nhanh -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="🔍 Tìm kiếm tên nhân viên, mã NV...">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover align-middle" id="employeeTable">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th>TÊN NHÂN VIÊN</th>
+                            <th>MÃ NV</th>
+                            <th>SẢN LƯỢNG ĐẠT</th>
+                            <th>CHỈ TIÊU</th>
+                            <th>TỶ LỆ</th>
+                            <th>SẢN LƯỢNG BAN ĐẦU</th>
+                            <th>SẢN LƯỢNG LỖI</th>
+                            <th>TỶ LỆ LỖI (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td><strong>@item.EmployeeName</strong></td>
+                                    <td class="text-center"><span class="badge bg-secondary">@item.EmployeeCode</span></td>
+                                    <td class="text-end">@item.ActualQty.ToString("N0")</td>
+                                    <td class="text-end">@item.TargetQty.ToString("N0")</td>
+                                    <td class="text-center text-success fw-bold">@item.Performance</td>
+                                    <!-- Đã bỏ .ToString("N0") để hiển thị sản lượng ban đầu hoàn toàn không có dấu phẩy -->
+                                    <td class="text-end">@item.InitialQty</td>
+                                    <td class="text-end text-danger">@item.DefectQty.ToString("N0")</td>
+                                    <td class="text-center">
+                                        <span class="badge @(item.DefectRate > 5 ? "bg-danger" : "bg-success")">
+                                            @item.DefectRate%
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">Không có dữ liệu nhân viên nào.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('searchInput').addEventListener('keyup', function () {
+            let filter = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#employeeTable tbody tr');
+
+            rows.forEach(row => {
+                let text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+    </script>
+}

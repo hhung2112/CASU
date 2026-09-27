@@ -1,0 +1,68 @@
+﻿@model IEnumerable<CASU.Models.ProductionLogModel>
+
+@{
+    ViewData["Title"] = "Lịch Sử Nhập Liệu";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+            <h5 class="mb-0"><i class="fa-solid fa-clock-rotate-left me-2"></i> Danh Sách Dữ Liệu Đã Nhập</h5>
+            <a asp-action="InputProduction" class="btn btn-success btn-sm fw-bold">
+                <i class="fa-solid fa-plus me-1"></i> Nhập Mẻ Mới
+            </a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0 align-middle text-nowrap">
+                    <thead class="table-dark text-uppercase" style="font-size: 11px;">
+                        <tr>
+                            <th>Thời Gian</th>
+                            <th>Mã NV</th>
+                            <th>Họ Tên</th>
+                            <th>Mã Máy</th>
+                            <th>Vị Trí</th>
+                            <th>Item</th>
+                            <th>Quy Cách</th>
+                            <th>Mã Gai</th>
+                            <th>Nhãn Hiệu</th>
+                            <th>Số Mã Hóa</th>
+                            <th>Mã Dot</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.VskDate</td>
+                                    <td><span class="badge bg-secondary">@item.EmployeeCode</span></td>
+                                    <td class="fw-bold">@item.EmployeeName</td>
+                                    <td>@item.MachineCode</td>
+                                    <td><span class="badge bg-info text-dark">@item.Position</span></td>
+                                    <td class="fw-bold text-primary">@item.ProductCategory</td>
+                                    <td>@item.Specification</td>
+                                    <td>@item.TreadCode</td>
+                                    <td>@item.Brand</td>
+                                    <td><code>@item.EncryptionCode</code></td>
+                                    <td><span class="badge bg-warning text-dark">@item.DotCode</span></td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="11" class="text-center py-4 text-muted">
+                                    <i class="fa-solid fa-box-open fa-2x mb-2"></i>
+                                    <p class="mb-0">Chưa có dữ liệu sản xuất nào được ghi nhận.</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,82 @@
+﻿@model IEnumerable<CASU.Models.QrLogViewModel>
+
+@{
+    ViewData["Title"] = "Nhật Ký Quét Mã QR";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Nhật Ký Quét Mã QR</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="TotalProduction">Dashboard</a></li>
+        <li class="breadcrumb-item active">Nhật Ký QR</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-qrcode me-1"></i>
+            Lịch sử quét QR code từ dây chuyền nhà máy
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover" id="datatablesSimple">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Thời Gian</th>
+                            <th>Mã Lệnh (LSX)</th>
+                            <th>Mã Item</th>
+                            <th>Mã QR Code</th>
+                            <th>Tổ / Truyền</th>
+                            <th>Máy</th>
+                            <th>Công Nhân</th>
+                            <th>Trạng Thái</th>
+                            <th>Lỗi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var log in Model)
+                            {
+                                <tr>
+                                    <td><small>@log.Time</small></td>
+                                    <td><code>@log.OrderCode</code></td>
+                                    <td>@log.ItemCode</td>
+                                    <td><small class="text-muted">@log.QrCode</small></td>
+                                    <td>@log.Line</td>
+                                    <td><span class="badge bg-info text-dark">@log.Machine</span></td>
+                                    <td>@log.Employee</td>
+                                    <td>
+                                        @if (log.Status == "Đạt" || log.Status == "Đt")
+                                        {
+                                            <span class="badge bg-success">Đạt</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">@log.Status</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (log.Defect == "-")
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger fw-bold">@log.Defect</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="9" class="text-center text-muted">Không có dữ liệu nhật ký QR nào.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

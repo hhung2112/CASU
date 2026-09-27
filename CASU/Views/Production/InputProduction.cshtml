@@ -1,0 +1,131 @@
+﻿@{
+    ViewData["Title"] = "Nhập Liệu Mẻ Sản Xuất";
+    Layout = "_Layout"; // Sử dụng chung Layout hệ thống
+
+    // Lấy an toàn giá trị từ Form nếu request là POST, ngược lại để trống
+    bool isPost = Context.Request.Method.Equals("POST", StringComparison.OrdinalIgnoreCase);
+    string empName = isPost ? Context.Request.Form["employeeName"] : "";
+    string empCode = isPost ? Context.Request.Form["employeeCode"] : "";
+    string machine = isPost ? Context.Request.Form["machineCode"] : "";
+    string position = isPost ? Context.Request.Form["position"] : "TRÁI";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+            <!-- Header -->
+            <div class="card-header bg-danger text-white text-center py-3">
+                <h5 class="mb-0 fw-bold"><i class="fa-solid fa-shield-cat me-2"></i>CASUMINA LƯU HÓA</h5>
+                <small class="text-white-50">Hệ thống ghi nhận sản lượng thực tế</small>
+            </div>
+
+            <div class="card-body p-4 bg-white">
+                <!-- Thông báo kết quả thành công -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show text-center py-2" role="alert" style="font-size: 13px;">
+                        <i class="fa-solid fa-circle-check me-1"></i> @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <!-- Thông báo lỗi -->
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show text-center py-2" role="alert" style="font-size: 13px;">
+                        <i class="fa-solid fa-triangle-exclamation me-1"></i> @TempData["ErrorMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <!-- Form Nhập Liệu Chính -->
+                <form id="productionForm" asp-action="SaveProduction" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Tổ vận hành -->
+                    <div class="operator-banner bg-light border rounded-3 p-2 mb-3 d-flex align-items-center">
+                        <div class="operator-icon bg-danger-subtle text-danger rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 38px; height: 38px;">
+                            <i class="fa-solid fa-user-gear"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div style="font-size: 10px; color: #8c98a4; font-weight: 600;">TỔ VẬN HÀNH</div>
+                            <div class="row g-2 mt-1">
+                                <div class="col-6">
+                                    <input type="text" class="form-control form-control-sm" name="employeeName"
+                                           value="@empName" placeholder="Tên nhân viên..." required />
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control form-control-sm" name="employeeCode"
+                                           value="@empCode" placeholder="Mã NV (VD: NV0123)" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mb-3">
+                        <h6 class="fw-bold text-dark mb-1">Thông Tin Mẻ Sản Xuất Mới</h6>
+                        <p class="text-muted small mb-0">Vui lòng điền đầy đủ các thông số bên dưới</p>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 11px;">MÁY</label>
+                            <input type="text" class="form-control form-control-sm fw-bold" name="machineCode"
+                                   value="@machine" placeholder="VD: Máy LH-001" required />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 11px;">VỊ TRÍ</label>
+                            <select class="form-select form-select-sm text-danger fw-bold" name="position">
+                                <option value="TRÁI" selected="@(position == "TRÁI" ? "selected" : null)">TRÁI</option>
+                                <option value="PHẢI" selected="@(position == "PHẢI" ? "selected" : null)">PHẢI</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold text-secondary" style="font-size: 11px;">ITEM (MÃ SẢN PHẨM)</label>
+                        <input type="text" class="form-control form-control-sm text-danger fw-bold" name="productCategory" placeholder="VD: 21062571" required />
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 11px;">QUY CÁCH</label>
+                            <input type="text" class="form-control form-control-sm" name="specification" placeholder="VD: 215/60R17" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 11px;">MÃ GAI</label>
+                            <input type="text" class="form-control form-control-sm" name="treadCode" placeholder="VD: HT2" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 11px;">NHÃN HIỆU</label>
+                            <input type="text" class="form-control form-control-sm" name="brand" placeholder="VD: AVANZA" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 11px;">SỐ MÃ HÓA</label>
+                            <input type="text" class="form-control form-control-sm" name="encryptionCode" placeholder="VD: A18" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 11px;">MÃ DOT</label>
+                            <input type="text" class="form-control form-control-sm" name="dotCode" placeholder="VD: 1224" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-semibold text-secondary" style="font-size: 11px;">NGÀY VSK</label>
+                            <input type="text" class="form-control form-control-sm" name="vskDate" value="@DateTime.Now.ToString("dd/MM/yyyy")" placeholder="DD/MM/YYYY" />
+                        </div>
+                    </div>
+
+                    <!-- Nút bấm lưu -->
+                    <button type="submit" class="btn btn-danger w-100 py-2 fw-bold rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                        LÀM MẺ TIẾP THEO <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

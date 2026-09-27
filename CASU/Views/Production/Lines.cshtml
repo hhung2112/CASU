@@ -1,0 +1,94 @@
+﻿@model IEnumerable<CASU.Models.LineStatusViewModel>
+
+@{
+    ViewData["Title"] = "Quản lý Dây Chuyền Sản Xuất";
+}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Quản lý Dây Chuyền Sản Xuất</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="TotalProduction">Dashboard</a></li>
+        <li class="breadcrumb-item active">Dây Chuyền</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-table me-1"></i>
+                Danh sách hiệu suất theo dây chuyền
+            </div>
+            <div>
+                <a asp-action="Lines" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-sync-alt"></i> Làm mới
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Ô tìm kiếm nhanh -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="🔍 Tìm kiếm mã chuyền, loại sản phẩm...">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover align-middle" id="lineTable">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th>Mã Chuyền</th>
+                            <th>Loại Sản Phẩm</th>
+                            <th>Sản Lượng Đạt</th>
+                            <th>Chỉ Tiêu Lệnh</th>
+                            <th>Hiệu Suất</th>
+                            <th>Sản Lượng Ban Đầu</th>
+                            <th>Sản Lượng Lỗi</th>
+                            <th>Tỷ Lệ Lỗi (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td><strong>@item.LineCode</strong></td>
+                                    <td><span class="badge bg-secondary">@item.ProductCategory</span></td>
+                                    <td class="text-end">@item.ActualQty.ToString("N0")</td>
+                                    <td class="text-end">@item.TargetQty.ToString("N0")</td>
+                                    <td class="text-center"><span class="text-success fw-bold">@item.Performance</span></td>
+                                    <td class="text-end">@item.InitialQty.ToString("N0")</td>
+                                    <td class="text-end"><span class="text-danger">@item.DefectQty.ToString("N0")</span></td>
+                                    <td class="text-center">
+                                        <span class="badge @(item.DefectRate > 5 ? "bg-danger" : "bg-success")">
+                                            @item.DefectRate%
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">Không có dữ liệu dây chuyền nào.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('searchInput').addEventListener('keyup', function () {
+            let filter = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#lineTable tbody tr');
+
+            rows.forEach(row => {
+                let text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+    </script>
+}

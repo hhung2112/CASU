@@ -1,0 +1,230 @@
+﻿@model CASU.Models.DashboardKpiViewModel
+
+@{
+    ViewData["Title"] = "Dashboard Tổng Quan Sản Xuất";
+}
+
+<div class="container-fluid mt-4 px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📊 Dashboard Tổng Quan Sản Xuất</h2>
+        <span class="text-muted">Cập nhật lúc: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</span>
+    </div>
+
+    <!-- Hàng thẻ KPI Tổng quan -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3 shadow-sm border-0">
+                <div class="card-header bg-primary fw-bold">Tổng Kế Hoạch (Plan)</div>
+                <div class="card-body">
+                    <h3 class="card-title fw-bold">@(Model?.TotalPlan.ToString("N0") ?? "0")</h3>
+                    <p class="card-text mb-0">Mục tiêu sản lượng toàn nhà máy.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3 shadow-sm border-0">
+                <div class="card-header bg-success fw-bold">Sản Lượng Thực Tế (Actual)</div>
+                <div class="card-body">
+                    <h3 class="card-title fw-bold">@(Model?.TotalActual.ToString("N0") ?? "0")</h3>
+                    <p class="card-text mb-0">Tổng sản lượng đạt được.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-danger mb-3 shadow-sm border-0">
+                <div class="card-header bg-danger fw-bold">Tỷ Lệ Lỗi Trung Bình</div>
+                <div class="card-body">
+                    <h3 class="card-title fw-bold">@(Model?.OverallDefectRate.ToString("0.00") ?? "0.00")%</h3>
+                    <p class="card-text mb-0">Tỷ lệ sản phẩm lỗi tổng thể.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHU VỰC HIỂN THỊ BIỂU ĐỒ -->
+    <div class="row mb-4">
+        <!-- Biểu đồ cột: So sánh Thực tế và Kế hoạch -->
+        <div class="col-lg-8 mb-3 mb-lg-0">
+            <div class="card shadow-sm border-0 p-3 h-100">
+                <h5 class="card-title text-primary fw-bold mb-3">📈 So Sánh Sản Lượng Thực Tế & Kế Hoạch</h5>
+                <div style="position: relative; height: 320px;">
+                    <canvas id="productionBarChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ tròn: Tỷ lệ lỗi theo sản phẩm -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 p-3 h-100">
+                <h5 class="card-title text-danger fw-bold mb-3">🍩 Tỷ Lệ Lỗi Theo Dòng Sản Phẩm</h5>
+                <div style="position: relative; height: 320px;">
+                    <canvas id="defectPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng chi tiết dữ liệu thực tế -->
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center">
+            <span>📋 Chi Tiết Dữ Liệu Sản Xuất Theo Ca & Dòng Sản Phẩm</span>
+            <a asp-action="TotalProduction" class="btn btn-sm btn-outline-light">
+                <i class="fas fa-sync-alt"></i> Làm mới
+            </a>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0 align-middle text-center" id="productionTable">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>NGÀY</th>
+                            <th>CA LÀM VIỆC</th>
+                            <th>DÒNG SẢN PHẨM</th>
+                            <th>SẢN LƯỢNG ĐẠT</th>
+                            <th>KẾ HOẠCH</th>
+                            <th>TỶ LỆ</th>
+                            <th>LÀM LỢI (PHÚT)</th>
+                            <th>SL BAN ĐẦU</th>
+                            <th>SẢN LƯỢNG LỖI</th>
+                            <th>TỶ LỆ LỖI (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.ProductionDetails != null && Model.ProductionDetails.Any())
+                        {
+                            foreach (var item in Model.ProductionDetails)
+                            {
+                                <tr>
+                                    <td>@item.ReportDate</td>
+                                    <td>@item.Shift</td>
+                                    <td>
+                                        <span class="badge @(item.ProductCategory == "PCR" ? "bg-info text-dark" : "bg-warning text-dark")">
+                                            @item.ProductCategory
+                                        </span>
+                                    </td>
+                                    <td class="fw-bold">@item.ActualQty.ToString("N0")</td>
+                                    <td>@item.TargetQty.ToString("N0")</td>
+                                    <td>@item.Performance</td>
+                                    <td class="text-danger">@item.BenefitTime</td>
+                                    <td>@item.InitialQty.ToString("N0")</td>
+                                    <td class="text-danger">@item.DefectQty.ToString("N0")</td>
+                                    <td>
+                                        <span class="badge @(item.DefectRate > 5 ? "bg-danger" : "bg-success")">
+                                            @item.DefectRate.ToString("0.00")%
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="10" class="text-center text-muted py-4">Không có dữ liệu tổng hợp nào.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Nhúng thư viện Chart.js và đoạn mã cấu hình biểu đồ -->
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Lấy dữ liệu tự động từ các hàng trong bảng hiển thị
+            const rows = document.querySelectorAll("#productionTable tbody tr");
+            let labels = [];
+            let actualData = [];
+            let targetData = [];
+
+            // Dữ liệu mẫu dùng cho biểu đồ tròn tổng hợp theo dòng sản phẩm
+            let defectByCategory = {};
+
+            rows.forEach(row => {
+                const cols = row.querySelectorAll("td");
+                if (cols.length >= 10) {
+                    let date = cols[0].innerText.trim();
+                    let shift = cols[1].innerText.trim();
+                    let category = cols[2].innerText.trim();
+                    let actual = parseFloat(cols[3].innerText.replace(/,/g, '')) || 0;
+                    let target = parseFloat(cols[4].innerText.replace(/,/g, '')) || 0;
+                    let defectQty = parseFloat(cols[8].innerText.replace(/,/g, '')) || 0;
+
+                    // Nhãn cho biểu đồ cột (Ví dụ: Ngày - Ca - Dòng)
+                    labels.push(`${date} (${shift} - ${category})`);
+                    actualData.push(actual);
+                    targetData.push(target);
+
+                    // Gom nhóm sản lượng lỗi theo dòng sản phẩm cho biểu đồ tròn
+                    if (!defectByCategory[category]) {
+                        defectByCategory[category] = 0;
+                    }
+                    defectByCategory[category] += defectQty;
+                }
+            });
+
+            // 1. Khởi tạo Biểu đồ Cột (Bar Chart)
+            const barCtx = document.getElementById('productionBarChart').getContext('2d');
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels.length > 0 ? labels : ['Không có dữ liệu'],
+                    datasets: [
+                        {
+                            label: 'Thực Tế (Actual)',
+                            data: actualData,
+                            backgroundColor: '#198754',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Kế Hoạch (Plan)',
+                            data: targetData,
+                            backgroundColor: '#0d6efd',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // 2. Khởi tạo Biểu đồ Tròn (Doughnut Chart)
+            const pieLabels = Object.keys(defectByCategory);
+            const pieData = Object.values(defectByCategory);
+
+            const pieCtx = document.getElementById('defectPieChart').getContext('2d');
+            new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: pieLabels.length > 0 ? pieLabels : ['Chưa phân loại'],
+                    datasets: [{
+                        data: pieData.length > 0 ? pieData : [1],
+                        backgroundColor: ['#0dcaf0', '#ffc107', '#dc3545', '#6c757d'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}
